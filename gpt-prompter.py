@@ -131,9 +131,7 @@ def main():
     parser = argparse.ArgumentParser(description="This script traverses a directory structure and generates a "
                                                  "formatted prompt suitable for use with ChatGPT. It includes both the "
                                                  "path names and the contents of the files found within the specified "
-                                                 "directory. It's recommended to pipe the output of this script to "
-                                                 "your clipboard using `| pbcopy` for easy pasting into the ChatGPT "
-                                                 "user interface.")
+                                                 "directory. By default it copies the prompt into your clipboard.")
     parser.add_argument("-e", "--extension", action="append",
                         help="Optionally specify the file extensions to be included. Repeat the flag for multiple "
                              "extensions. For example, '-e py -e txt -e yaml' includes Python, Text, and YAML files.")
