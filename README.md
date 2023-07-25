@@ -35,7 +35,7 @@ options:
                         consumed the codebase, without explaining it.
 ```
 
-### Default prompt pre-amlbles:
+### Default prompt pre-ambles:
 
 ```
 MAIN_PROMPT = "Review the provided codebase and describe its key functionalities. Should you require any missing " \
