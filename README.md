@@ -4,14 +4,14 @@
 
 Handy tool for generating prompts based on codebase of your project.
 
-### Usage (available via `--help`):
+### Usage (available via `--help`)
 
 ```
 usage: gpt_codebase_prompter.py [-h] [-e EXTENSION] [-f FILTER] [-x EXCLUDE] [-d] [-s SKIP] [-q] [paths ...]
 
 This script traverses a directory structure and generates a formatted prompt suitable for use with ChatGPT.
-It includes both the path names and the contents of the files found within the specified directory. By default
-it copies the prompt into your clipboard.
+It includes both the path names and the contents of the files found within the specified directory.
+Skips .gitignored files and counts token usage. By default it copies the prompt into your clipboard.
 
 positional arguments:
   paths                 Specify the directories or files to traverse. If not specified, the current working
@@ -35,7 +35,7 @@ options:
                         consumed the codebase, without explaining it.
 ```
 
-### Default prompt pre-ambles:
+### Default prompt pre-ambles
 
 ```
 MAIN_PROMPT = "Review the provided codebase and describe its key functionalities. Should you require any missing " \
@@ -45,3 +45,23 @@ QUIET_PROMPT = "You've received a codebase. Acknowledge your understanding by re
                "If you notice missing files critical to your comprehension, please request them. Do not elaborate on " \
                "the codebase's operation and skip explaining what it does:\n"
 ```
+
+### Example usage
+
+```
+$ ./gpt-prompter.py -d -e py
+Including for prompt: ['.']
+Including filename patterns: []
+Excluding filename patterns: []
+Excluding dirname patterns: []
+Extensions to be used: ['py']
+Files found: 1
+---- PROMPT START ----
+Review the provided codebase and describe its key functionalities. Should you require any missing files or further details for your analysis, kindly request:
+
+----FILE: ./gpt-prompter.py
+---- PROMPT END ----
+Total tokens for GPT-3.5: ~2158
+Total tokens for GPT-4: ~2158
+```
+(the content of `gpt-prompter.py` is omitted in console output, but it's copied to clipboard)
