@@ -49,7 +49,7 @@ QUIET_PROMPT = "You've received a codebase. Acknowledge your understanding by re
 ### Example usage
 
 ```
-$ ./gpt-prompter.py -d -e py
+$ ./gpt-prompter.py -e py
 Including for prompt: ['.']
 Including filename patterns: []
 Excluding filename patterns: []
