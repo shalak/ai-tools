@@ -31,7 +31,7 @@ options:
 ### Default prompt pre-amlbles:
 
 ```
-  MAIN_PROMPT = "Review the provided codebase and describe its key functionalities. Should you require any missing " \
+MAIN_PROMPT = "Review the provided codebase and describe its key functionalities. Should you require any missing " \
               "files or further details for your analysis, kindly request:\n"
 
 QUIET_PROMPT = "You've received a codebase. Acknowledge your understanding by responding with \"ACKNOWLEDGED\". " \
