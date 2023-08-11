@@ -74,17 +74,28 @@ def log(msg):
 
 
 def read_gitignore(path):
-    gitignore = os.path.join(path, '.gitignore')
-    global_gitignore = os.path.expanduser('~/.gitignore')
     gitignore_lines = []
+    global_gitignore = os.path.expanduser('~/.gitignore')
 
     if os.path.isfile(global_gitignore):
         with open(global_gitignore, 'r') as file:
             gitignore_lines += file.readlines()
 
-    if os.path.isfile(gitignore):
-        with open(gitignore, 'r') as file:
-            gitignore_lines += file.readlines()
+    # Find all .gitignore files in subdirs
+    for root, _, files in os.walk(path):
+        if '.gitignore' in files:
+            with open(os.path.join(root, '.gitignore'), 'r') as gitignore_file:
+                sub_dir = os.path.relpath(root, path)
+
+                # If we are in the root directory, no need to prepend the subdirectory
+                if sub_dir != ".":
+                    for line in gitignore_file:
+                        line = line.strip()
+                        # Avoiding comments or empty lines
+                        if line and not line.startswith("#"):
+                            gitignore_lines.append(os.path.join(sub_dir, line))
+                else:
+                    gitignore_lines += gitignore_file.readlines()
 
     return PathSpec.from_lines(GitWildMatchPattern, gitignore_lines) if gitignore_lines else PathSpec([])
 

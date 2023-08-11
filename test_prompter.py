@@ -21,7 +21,8 @@ class TestMyScript(unittest.TestCase):
         self.file2 = self.create_file('test2.txt')
         self.file3 = self.create_file('test3.py', self.subdir1)
         self.file4 = self.create_file('test4.py', self.subdir2)
-        self.file5 = self.create_file('file5.py')
+        self.file5 = self.create_file('test5.py', self.subdir2)
+        self.file6 = self.create_file('test6.py')
         self.gitignorefile2 = self.create_file('.gitignore', self.subdir2)
 
     def tearDown(self):
@@ -33,8 +34,9 @@ class TestMyScript(unittest.TestCase):
             f.write("test data")
         return os.path.join(directory, filename)
 
-    def create_gitignore(self, lines):
-        with open(os.path.join(self.test_dir, '.gitignore'), 'w') as f:
+    @staticmethod
+    def write_to_file(file, lines):
+        with open(file, 'w') as f:
             for line in lines:
                 f.write(line + "\n")
 
@@ -52,7 +54,7 @@ class TestMyScript(unittest.TestCase):
 
     def test_find_files(self):
         files = list(script.find_files(self.test_dir, [], [], [], [], script.PathSpec([]), None))
-        self.assertEqual(set(files), {self.file1, self.file2, self.file3, self.file4, self.file5})
+        self.assertEqual(set(files), {self.file1, self.file2, self.file3, self.file4, self.file5, self.file6})
 
     def test_num_tokens_from_string(self):
         tokens_gpt35, tokens_gpt4 = script.num_tokens_from_string('Hello, world!')
@@ -69,21 +71,28 @@ class TestMyScript(unittest.TestCase):
 
     def test_find_files_exclude(self):
         # Testing exclusion with .gitignore
-        self.create_gitignore(['test2.txt'])
+        self.write_to_file(self.gitignorefile1, ['test2.txt'])
+        self.write_to_file(self.gitignorefile2, ['test5.py'])
         gitignore_spec = script.read_gitignore(self.test_dir)
+        # main gitignore + skipping subdir2
         files = list(script.find_files(self.test_dir, ['.py', '.txt'], ['*test*'], [], ['*subdir2*'],
                                        gitignore_spec, self.test_dir))
-        self.assertEqual(set(files), {self.file1, self.file3})
+        self.assertEqual(set(files), {self.file1, self.file3, self.file6})
+
+        # nested gitignore should work
+        files = list(script.find_files(self.test_dir, ['.py', '.txt'], ['*test*'], [], [],
+                                       gitignore_spec, self.test_dir))
+        self.assertEqual(set(files), {self.file1, self.file3, self.file4, self.file6})
 
         # Testing exclusion with pattern
         files = list(script.find_files(self.test_dir, ['.py', '.txt'], ['*test*'], ['*2.txt'], ['subdir2'],
                                        script.PathSpec([]), self.test_dir))
-        self.assertEqual(set(files), {self.file1, self.file3})
+        self.assertEqual(set(files), {self.file1, self.file3, self.file6})
 
         # Testing exclusion with extension
         files = list(script.find_files(self.test_dir, ['.py'], ['*test*'], [], ['subdir2'],
                                        script.PathSpec([]), self.test_dir))
-        self.assertEqual(set(files), {self.file1, self.file3})
+        self.assertEqual(set(files), {self.file1, self.file3, self.file6})
 
     @patch('proxy_gpt_prompter.num_tokens_from_string')
     @patch('proxy_gpt_prompter.log')
@@ -136,7 +145,10 @@ class TestMyScript(unittest.TestCase):
             f"{script.MAIN_PROMPT}----FILE: {self.file3}\n"
             f"test data\n"
             f"----FILE: {self.file1}\n"
-            f"test data\n")]
+            f"test data\n"
+            f"----FILE: {self.file6}\n"
+            f"test data\n"
+        )]
         self.assertEqual(mock_copy.call_args_list, expected_calls)
 
     @patch('pyperclip.copy')
@@ -156,7 +168,10 @@ class TestMyScript(unittest.TestCase):
             f"{script.QUIET_PROMPT}----FILE: {self.file3}\n"
             f"test data\n"
             f"----FILE: {self.file1}\n"
-            f"test data\n")]
+            f"test data\n"
+            f"----FILE: {self.file6}\n"
+            f"test data\n"
+        )]
         self.assertEqual(mock_copy.call_args_list, expected_calls)
 
     @patch('proxy_gpt_prompter.generate_and_count_tokens')
